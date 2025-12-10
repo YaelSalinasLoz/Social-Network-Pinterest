@@ -142,11 +142,13 @@ app.get('/api/pin/:id_pin', async (req, res) => {
                    p.url_image AS url_image
         `, { id_pin });
         
-        const suggestedSimilarPins = suggestedQuery.records.map(record => ({
-            id_pin: record.get('id_pin'),
-            title: record.get('title'),
-            url_image: record.get('url_image')
-        }));
+        const suggestedSimilarPins = suggestedQuery.records
+            .map(record => ({
+                id_pin: record.get('id_pin'),
+                title: record.get('title'),
+                url_image: record.get('url_image')
+            }))
+            .filter(pin => pin.url_image && pin.url_image.length > 0);
 
         res.json({
             mainPin: mainPinData,
@@ -202,7 +204,8 @@ app.post('/api/pins/:id/like', async (req, res) => {
             { pinId }
         );
 
-        const likesCount = likesResult.records[0].get('likesCount');
+        const likesCount = likesResult.records[0].get('likesCount')?.low || 
+                          likesResult.records[0].get('likesCount') || 0;
 
         res.json({
             success: true,
@@ -280,7 +283,8 @@ app.post('/api/users/:id/follow', async (req, res) => {
             { targetUserId }
         );
 
-        const followersCount = followersResult.records[0].get('followersCount');
+        const followersCount = followersResult.records[0].get('followersCount')?.low || 
+                              followersResult.records[0].get('followersCount') || 0;
 
         res.json({
             success: true,
